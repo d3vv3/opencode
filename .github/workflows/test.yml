@@ -105,6 +105,21 @@ jobs:
             .artifacts/unit/${{ matrix.pkg.id }}/turbo.log
             ${{ matrix.pkg.dir }}/.artifacts/unit/junit.xml
 
+  unit-rollup:
+    name: unit (${{ matrix.name }})
+    needs: [unit]
+    if: always()
+    strategy:
+      matrix:
+        name: [linux, windows]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - run: |
+          if [[ "${{ needs.unit.result }}" != "success" ]]; then
+            echo "unit shards: ${{ needs.unit.result }}"
+            exit 1
+          fi
+
   e2e:
     name: e2e (${{ matrix.settings.name }})
     strategy:
